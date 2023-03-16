@@ -1,10 +1,12 @@
 import './App.css';
 import { useState } from "react"
+import { v4 } from "uuid";
 
 function TodoInput({ todoInput, setTodoInput, todoList, setTodoList }) {
 
     function handleClick() {
-        setTodoList([...todoList, todoInput])
+        if(todoInput === '')    return;
+        setTodoList([...todoList, { id: v4(), text: todoInput }])
         setTodoInput('');
     }
 
@@ -29,11 +31,21 @@ function TodoInput({ todoInput, setTodoInput, todoList, setTodoList }) {
 }
 
 function TodoList({ todoList, setTodoList }) {
+
+    function handleClick(id) {
+        setTodoList(todoList.filter(item => item.id !== id))
+    }
+
     return (
         <div className='mt-3'>
             <p className='h1'>My Todos:</p>
             <ul className='list-group'>
-                {todoList.map(item => <li className='list-group-item'>{item}</li>)}
+                {todoList.map(item => (
+                    <li key={item.id} className='list-group-item d-flex justify-content-between align-items-center'>
+                        {item.text}
+                        <button onClick={() => handleClick(item.id)} className='btn btn-light'><i className='bi bi-trash'></i></button>
+                    </li>
+                ))}
             </ul>
         </div>
     );
