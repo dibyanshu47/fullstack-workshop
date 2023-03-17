@@ -1,13 +1,21 @@
 import './App.css';
-import { useState } from "react"
-import { v4 } from "uuid";
+import { useState, useEffect } from "react"
+// import { v4 } from "uuid";
+
+import { getTodos, addTodo, deleteTodo } from "./services/service.js";
 
 function TodoInput({ todoInput, setTodoInput, todoList, setTodoList }) {
 
-    function handleClick() {
-        if(todoInput === '')    return;
-        setTodoList([...todoList, { id: v4(), text: todoInput }])
-        setTodoInput('');
+    async function handleClick() {
+        if (todoInput === '') return;
+
+        try {
+            const { data } = await addTodo({ text: todoInput });
+            setTodoList([...todoList, data])
+            setTodoInput('');
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
@@ -19,6 +27,9 @@ function TodoInput({ todoInput, setTodoInput, todoList, setTodoList }) {
                 className="form-control"
                 value={todoInput}
                 onChange={(e) => setTodoInput(e.target.value)}
+                onKeyPress={(e) => {
+                    if(e.key === "Enter")   handleClick();
+                }}
             />
             <button
                 className="btn btn-primary mt-3"
@@ -32,8 +43,13 @@ function TodoInput({ todoInput, setTodoInput, todoList, setTodoList }) {
 
 function TodoList({ todoList, setTodoList }) {
 
-    function handleClick(id) {
-        setTodoList(todoList.filter(item => item.id !== id))
+    async function handleClick(_id) {
+        try {
+            const { data } = await deleteTodo(_id);
+            setTodoList(todoList.filter(item => item._id !== data._id))
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
@@ -41,9 +57,9 @@ function TodoList({ todoList, setTodoList }) {
             <p className='h1'>My Todos:</p>
             <ul className='list-group'>
                 {todoList.map(item => (
-                    <li key={item.id} className='list-group-item d-flex justify-content-between align-items-center'>
+                    <li key={item._id} className='list-group-item d-flex justify-content-between align-items-center'>
                         {item.text}
-                        <button onClick={() => handleClick(item.id)} className='btn btn-light'><i className='bi bi-trash'></i></button>
+                        <button onClick={() => handleClick(item._id)} className='btn btn-light'><i className='bi bi-trash'></i></button>
                     </li>
                 ))}
             </ul>
@@ -52,9 +68,17 @@ function TodoList({ todoList, setTodoList }) {
 }
 
 function App() {
-    
+
     const [todoInput, setTodoInput] = useState('');
     const [todoList, setTodoList] = useState([]);
+
+    useEffect(function () {
+        async function fetchTodos() {
+            const { data } = await getTodos();
+            setTodoList(data);
+        }
+        fetchTodos();
+    }, []);
 
     return (
         <div className="App">
