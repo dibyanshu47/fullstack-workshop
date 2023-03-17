@@ -42,7 +42,7 @@ app.delete('/api/todo/:id', async function (req, res) {
     }
 })
 
-const CONNECTION_URL = ""; // paste your connection url from mongo db
+const CONNECTION_URL = "mongodb+srv://dibyanshu47:0DjZlIP21PBGi05j@cluster0.qewkrvo.mongodb.net/?retryWrites=true&w=majority"; // paste your connection url from mongo db
 
 // @ = %40
 // # = %23
